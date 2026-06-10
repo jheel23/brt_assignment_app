@@ -7,7 +7,7 @@ abstract class StorageService {
   Future<bool?> getBool(String key);
   Future<bool> remove(String key);
   Future<bool> containsKey(String key);
-  // Future<bool> setListMap(String key, List<Map<String, dynamic>> value);
-  // Future<List<Map<String, dynamic>>?> getListMap(String key);
+  Future<bool> setListMap(String key, List<Map<String, dynamic>> value);
+  Future<List<Map<String, dynamic>>?> getListMap(String key);
   Future<void> nuke();
 }

@@ -7,7 +7,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home',
         builder: (context, state) {
-          return HomeScreen();
+          return const HomeScreen();
+        },
+      ),
+      GoRoute(
+        path: '/product',
+        builder: (context, state) {
+          final product = state.extra as ProductEntity;
+          return ProductDetailScreen(product: product);
         },
       ),
     ],

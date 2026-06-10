@@ -9,20 +9,28 @@ Future<void> initServiceLocator() async {
   sl.registerLazySingleton(() => Dio());
 
   //Dio client initialization...
-  sl.registerLazySingleton(() => DioClient(ApiEndpoints.baseUrl, sl()));
+  sl.registerLazySingleton(() => DioClient(ApiEndpoints.baseUrl, sl<Dio>()));
 
   // ----------------------------------------------------------------------
   //? Services/Sources
   // ----------------------------------------------------------------------
-  // sl.registerSingleton<DemandItemsApiService>(DemandItemsApiServiceImpl(sl()));
+  sl.registerLazySingleton<ProductApiService>(
+    () => ProductApiServiceImpl(sl()),
+  );
 
   // ----------------------------------------------------------------------
   //? Repositories
   // ----------------------------------------------------------------------
-  // sl.registerSingleton<DemandItemsRepo>(DemandItemsRepoImp(sl()));
+  sl.registerLazySingleton<ProductRepo>(
+    () => ProductRepoImpl(
+      productApiService: sl<ProductApiService>(),
+      storageService: sl<SecureStorageService>(),
+    ),
+  );
 
   // ----------------------------------------------------------------------
   //? Providers
   // ----------------------------------------------------------------------
-  // sl.registerFactory(() => DemandItemsNotifier(sl<GetDemandItemsUseCase>()));
+
+  sl.registerLazySingleton<ProductsNotifier>(() => ProductsNotifier());
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'storage_service.dart';
@@ -59,36 +60,38 @@ class SecureStorageService implements StorageService {
   }
 
   /// Save a List<Map<String, dynamic>> securely
-  // @override
-  // Future<void> setListMap(String key, List<Map<String, dynamic>> value) async {
-  //   try {
-  //     final jsonString = jsonEncode(value);
-  //     await _secureStorage.write(key: key, value: jsonString);
-  //   } catch (e) {
-  //     print('Failed to save list to secure storage');
-  //   }
-  // }
+  @override
+  Future<bool> setListMap(String key, List<Map<String, dynamic>> value) async {
+    try {
+      final jsonString = jsonEncode(value);
+      await _secureStorage.write(key: key, value: jsonString);
+      return true;
+    } catch (e) {
+      print('Failed to save list to secure storage');
+      return false;
+    }
+  }
 
   /// Read a List<Map<String, dynamic>> from secure storage
-  // @override
-  // Future<List<Map<String, dynamic>>> getListMap(String key) async {
-  //   try {
-  //     final jsonString = await _secureStorage.read(key: key);
-  //     if (jsonString == null || jsonString.isEmpty) {
-  //       return [];
-  //     }
-  //     final decoded = jsonDecode(jsonString);
-  //     if (decoded is! List) {
-  //       return [];
-  //     }
-  //     return decoded
-  //         .whereType<Map>()
-  //         .map((e) => Map<String, dynamic>.from(e))
-  //         .toList();
-  //   } catch (e) {
-  //     return [];
-  //   }
-  // }
+  @override
+  Future<List<Map<String, dynamic>>> getListMap(String key) async {
+    try {
+      final jsonString = await _secureStorage.read(key: key);
+      if (jsonString == null || jsonString.isEmpty) {
+        return [];
+      }
+      final decoded = jsonDecode(jsonString);
+      if (decoded is! List) {
+        return [];
+      }
+      return decoded
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } catch (e) {
+      return [];
+    }
+  }
 
   @override
   Future<void> nuke() async {
