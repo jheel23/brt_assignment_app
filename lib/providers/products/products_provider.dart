@@ -8,6 +8,14 @@ import 'package:brtassignment/service_locator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProductsNotifier extends Notifier<ProductState> {
+  final SecureStorageService _secureStorageService;
+  final ProductRepo _productRepo;
+
+  ProductsNotifier({
+    required this._secureStorageService,
+    required this._productRepo,
+  });
+
   final Set<int> _wishlistIds = {};
   List<String> _categories = [];
   String? _selectedCategory;
@@ -30,8 +38,9 @@ class ProductsNotifier extends Notifier<ProductState> {
 
   Future<void> loadWishlist() async {
     try {
-      final storage = sl<SecureStorageService>();
-      final cachedWishlist = await storage.getString('wishlist_ids');
+      final cachedWishlist = await _secureStorageService.getString(
+        'wishlist_ids',
+      );
       if (cachedWishlist != null) {
         final List<dynamic> decoded = jsonDecode(cachedWishlist);
         _wishlistIds.clear();
@@ -50,8 +59,7 @@ class ProductsNotifier extends Notifier<ProductState> {
     _updateLoadedState();
 
     try {
-      final storage = sl<SecureStorageService>();
-      await storage.setString(
+      await _secureStorageService.setString(
         'wishlist_ids',
         jsonEncode(_wishlistIds.toList()),
       );
@@ -59,16 +67,15 @@ class ProductsNotifier extends Notifier<ProductState> {
   }
 
   Future<void> loadCategories() async {
-    final repo = sl<ProductRepo>();
-    final result = await repo.getCategories();
+    final result = await _productRepo.getCategories();
     result.fold(
       (failure) {
-        _isOffline = repo.isOffline;
+        _isOffline = _productRepo.isOffline;
         state = ProductState.error(failure.message);
       },
       (cats) {
         _categories = cats;
-        _isOffline = repo.isOffline;
+        _isOffline = _productRepo.isOffline;
         _updateLoadedState();
       },
     );
@@ -126,8 +133,7 @@ class ProductsNotifier extends Notifier<ProductState> {
       );
     }
 
-    final repo = sl<ProductRepo>();
-    final result = await repo.getProducts(
+    final result = await _productRepo.getProducts(
       search: _searchQuery,
       category: _selectedCategory,
       limit: _limit,
@@ -136,7 +142,7 @@ class ProductsNotifier extends Notifier<ProductState> {
 
     result.fold(
       (failure) {
-        _isOffline = repo.isOffline;
+        _isOffline = _productRepo.isOffline;
         if (refresh) {
           state = ProductState.error(failure.message);
         } else {
@@ -155,7 +161,7 @@ class ProductsNotifier extends Notifier<ProductState> {
         }
       },
       (parentEntity) {
-        _isOffline = repo.isOffline;
+        _isOffline = _productRepo.isOffline;
         final newProducts = refresh
             ? parentEntity.products
             : [...currentProducts, ...parentEntity.products];

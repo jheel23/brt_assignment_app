@@ -32,5 +32,10 @@ Future<void> initServiceLocator() async {
   //? Providers
   // ----------------------------------------------------------------------
 
-  sl.registerLazySingleton<ProductsNotifier>(() => ProductsNotifier());
+  sl.registerLazySingleton<ProductsNotifier>(
+    () => ProductsNotifier(
+      productRepo: sl<ProductRepo>(),
+      secureStorageService: sl<SecureStorageService>(),
+    ),
+  );
 }
